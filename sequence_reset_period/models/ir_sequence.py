@@ -40,6 +40,8 @@ class IrSequence(models.Model):
         self.ensure_one()
         if not self.range_reset:
             return super()._create_date_range_seq(date)
+        # callers may give a str (``ir_sequence_date`` context), a date or a datetime
+        date = fields.Date.to_date(date)
         date_from, date_to = self._compute_date_from_to(date)
         date_range = self.env["ir.sequence.date_range"].search(
             [
