@@ -131,3 +131,24 @@ class TestSequence(common.TransactionCase):
         self.assertEqual(
             "00002", sequence.with_context(ir_sequence_date=self.dt).next_by_id()
         )
+
+    def test_sequence_date_as_string(self):
+        """The date may be a str (context ir_sequence_date) or the sequence_date argument"""
+        sequence = self.get_sequence("monthly")
+        self.assertEqual(
+            "00001", sequence.with_context(ir_sequence_date="2018-03-15").next_by_id()
+        )
+        self.assertEqual(
+            "00002", sequence.with_context(ir_sequence_date="2018-03-31").next_by_id()
+        )
+        self.assertEqual("00001", sequence.next_by_id(sequence_date="2018-04-01"))
+        self.assertEqual(
+            [
+                (date(2018, 3, 1), date(2018, 3, 31)),
+                (date(2018, 4, 1), date(2018, 4, 30)),
+            ],
+            [
+                (r.date_from, r.date_to)
+                for r in sequence.date_range_ids.sorted("date_from")
+            ],
+        )
